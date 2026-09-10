@@ -84,39 +84,43 @@ export default function ProductsHorizontalScroll({ products = [] }: { products?:
             const variant = VARIANTS[idx % VARIANTS.length];
 
             return (
-              <Tilt
+              <div
                 key={p.id || p.slug || idx}
-                tiltMaxAngleX={15}
-                tiltMaxAngleY={15}
-                perspective={1000}
-                transitionSpeed={400}
-                glareEnable={true}
-                glareMaxOpacity={0.2}
-                glareColor="#ffffff"
-                glarePosition="all"
-                className={`parallax-box ${variant}`}
                 onClick={() => setSelectedProduct(p)}
+                style={{ display: 'contents', cursor: 'pointer' }}
               >
-                <h2 className="sol-name">{title}</h2>
-                <div className="sol-circle" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={img}
-                  alt={title}
-                  className="sol-product rounded-xl"
-                  loading="lazy"
-                />
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedProduct(p);
-                  }}
-                  className="sol-explore"
+                <Tilt
+                  tiltMaxAngleX={15}
+                  tiltMaxAngleY={15}
+                  perspective={1000}
+                  transitionSpeed={400}
+                  glareEnable={true}
+                  glareMaxOpacity={0.2}
+                  glareColor="#ffffff"
+                  glarePosition="all"
+                  className={`parallax-box ${variant}`}
                 >
-                  Explore Details
-                </button>
-              </Tilt>
+                  <h2 className="sol-name">{title}</h2>
+                  <div className="sol-circle" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={img}
+                    alt={title}
+                    className="sol-product rounded-xl"
+                    loading="lazy"
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedProduct(p);
+                    }}
+                    className="sol-explore"
+                  >
+                    Explore Details
+                  </button>
+                </Tilt>
+              </div>
             );
           })}
         </div>
