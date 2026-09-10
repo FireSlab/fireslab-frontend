@@ -154,7 +154,15 @@ export default function Navbar() {
 
   return (
     <header id="navbar" className={scrolled ? 'scrolled' : ''}>
-      <nav className="container">
+      <nav
+        className="container"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+        }}
+      >
         {/* Brand Logo - Real FireSlab Logo */}
         <Link href="/" className="flex items-center group py-0.5">
           <Image

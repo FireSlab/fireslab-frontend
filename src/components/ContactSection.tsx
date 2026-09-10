@@ -68,7 +68,7 @@ export default function ContactSection() {
   };
 
   return (
-    <section id="contact" className="contact-section reveal">
+    <section id="contact" className="contact-section">
       <div className="container contact-grid">
         {/* Contact Info */}
         <div className="contact-info">

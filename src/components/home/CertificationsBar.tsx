@@ -44,7 +44,7 @@ export default function CertificationsBar({
       : DEFAULT_CERTIFICATIONS;
 
   return (
-    <section className="certifications reveal" aria-label="Certifications & Quality Standards">
+    <section className="certifications" aria-label="Certifications & Quality Standards">
       <div className="container">
         <div className="cert-grid">
           {displayCerts.map((cert, idx) => (

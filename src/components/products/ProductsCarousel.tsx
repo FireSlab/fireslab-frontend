@@ -65,10 +65,10 @@ export default function ProductsCarousel({
 
   const solOrderRef = useRef<number[]>([]);
   const solDetailsEvenRef = useRef(true);
-  const solClicksRef = useRef(0);
   const isAnimatingRef = useRef(false);
-  const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const loopTweenRef = useRef<gsap.core.Tween | null>(null);
+  const isHoveredRef = useRef(false);
+  const isModalOpenRef = useRef(false);
+  isModalOpenRef.current = !!selectedProduct;
 
   const solCardWidth = 200;
   const solCardHeight = 300;
@@ -135,174 +135,184 @@ export default function ProductsCarousel({
     []
   );
 
-  const solStep = useCallback((): Promise<void> => {
-    if (!containerRef.current || activeProducts.length === 0) {
-      return Promise.resolve();
-    }
-    isAnimatingRef.current = true;
+  const solStep = useCallback(
+    (direction: 'next' | 'prev' = 'next'): Promise<void> => {
+      if (
+        !containerRef.current ||
+        activeProducts.length === 0 ||
+        isAnimatingRef.current
+      ) {
+        return Promise.resolve();
+      }
+      isAnimatingRef.current = true;
 
-    return new Promise<void>((resolve) => {
-      const order = solOrderRef.current;
-      // Cycle order: move first to end
-      const shifted = order.shift()!;
-      order.push(shifted);
-
-      solDetailsEvenRef.current = !solDetailsEvenRef.current;
-      const detailsActive = solDetailsEvenRef.current
-        ? '#prod-details-even'
-        : '#prod-details-odd';
-      const detailsInactive = solDetailsEvenRef.current
-        ? '#prod-details-odd'
-        : '#prod-details-even';
-
-      const activeIdx = order[0];
-      const activeItem = activeProducts[activeIdx];
-      updateDetailsBox(detailsActive, activeItem);
-
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const solOffsetTop = height - 430;
-      const solOffsetLeft = Math.max(20, width - 830);
-
-      // Staggered text reveal for active box
-      gsap.set(detailsActive, { zIndex: 22 });
-      gsap.to(detailsActive, { opacity: 1, delay: 0.4, ease: solEase });
-      gsap.to(`${detailsActive} .sol-text`, {
-        y: 0,
-        delay: 0.1,
-        duration: 0.7,
-        ease: solEase,
-      });
-      gsap.to(`${detailsActive} .sol-title-1`, {
-        y: 0,
-        delay: 0.15,
-        duration: 0.7,
-        ease: solEase,
-      });
-      gsap.to(`${detailsActive} .sol-title-2`, {
-        y: 0,
-        delay: 0.15,
-        duration: 0.7,
-        ease: solEase,
-      });
-      gsap.to(`${detailsActive} .sol-desc`, {
-        y: 0,
-        delay: 0.3,
-        duration: 0.4,
-        ease: solEase,
-      });
-      gsap.to(`${detailsActive} .sol-cta`, {
-        y: 0,
-        delay: 0.35,
-        duration: 0.4,
-        ease: solEase,
-      });
-
-      // Hide inactive box
-      gsap.set(detailsInactive, { zIndex: 12 });
-
-      const [active, ...rest] = order;
-      const prv = rest[rest.length - 1];
-
-      gsap.set(`#prod-card-${prv}`, { zIndex: 10 });
-      gsap.set(`#prod-card-${active}`, { zIndex: 20 });
-      gsap.to(`#prod-card-${prv}`, { scale: 1.5, ease: solEase });
-
-      gsap.to(`#prod-card-content-${active}`, {
-        y: solOffsetTop + solCardHeight - 10,
-        opacity: 0,
-        duration: 0.3,
-        ease: solEase,
-      });
-      gsap.to(`#prod-slide-item-${active}`, { x: 0, ease: solEase });
-      gsap.to(`#prod-slide-item-${prv}`, { x: -solNumberSize, ease: solEase });
-      gsap.to('.prod-progress-fg', {
-        width: 320 * (1 / order.length) * (active + 1),
-        ease: solEase,
-      });
-
-      // Expand active card to full viewport
-      gsap.to(`#prod-card-${active}`, {
-        x: 0,
-        y: 0,
-        ease: solEase,
-        width: width,
-        height: height,
-        borderRadius: 0,
-        onComplete: () => {
-          const xNew =
-            solOffsetLeft + (rest.length - 1) * (solCardWidth + solGap);
-          gsap.set(`#prod-card-${prv}`, {
-            x: xNew,
-            y: solOffsetTop,
-            width: solCardWidth,
-            height: solCardHeight,
-            zIndex: 30,
-            borderRadius: 10,
-            scale: 1,
-          });
-          gsap.set(`#prod-card-content-${prv}`, {
-            x: xNew,
-            y: solOffsetTop + solCardHeight - 100,
-            opacity: 1,
-            zIndex: 40,
-          });
-          gsap.set(`#prod-slide-item-${prv}`, {
-            x: rest.length * solNumberSize,
-          });
-
-          // Reset inactive details box coordinates
-          gsap.set(detailsInactive, { opacity: 0 });
-          gsap.set(`${detailsInactive} .sol-text`, { y: 100 });
-          gsap.set(`${detailsInactive} .sol-title-1`, { y: 100 });
-          gsap.set(`${detailsInactive} .sol-title-2`, { y: 100 });
-          gsap.set(`${detailsInactive} .sol-desc`, { y: 50 });
-          gsap.set(`${detailsInactive} .sol-cta`, { y: 60 });
-
-          isAnimatingRef.current = false;
-          solClicksRef.current -= 1;
-          if (solClicksRef.current > 0) {
-            solStep();
-          }
-          resolve();
-        },
-      });
-
-      // Slide remaining deck cards forward
-      rest.forEach((i, index) => {
-        if (i !== prv) {
-          const xNew = solOffsetLeft + index * (solCardWidth + solGap);
-          gsap.set(`#prod-card-${i}`, { zIndex: 30 });
-          gsap.to(`#prod-card-${i}`, {
-            x: xNew,
-            y: solOffsetTop,
-            width: solCardWidth,
-            height: solCardHeight,
-            ease: solEase,
-            delay: 0.1 * (index + 1),
-          });
-          gsap.to(`#prod-card-content-${i}`, {
-            x: xNew,
-            y: solOffsetTop + solCardHeight - 100,
-            opacity: 1,
-            zIndex: 40,
-            ease: solEase,
-            delay: 0.1 * (index + 1),
-          });
-          gsap.to(`#prod-slide-item-${i}`, {
-            x: (index + 1) * solNumberSize,
-            ease: solEase,
-          });
+      return new Promise<void>((resolve) => {
+        const order = solOrderRef.current;
+        if (direction === 'next') {
+          const shifted = order.shift()!;
+          order.push(shifted);
+        } else {
+          const popped = order.pop()!;
+          order.unshift(popped);
         }
-      });
-    });
-  }, [activeProducts, updateDetailsBox]);
 
-  const triggerStep = useCallback(() => {
-    solClicksRef.current += 1;
-    if (solClicksRef.current === 1 && !isAnimatingRef.current) {
-      solStep();
-    }
+        solDetailsEvenRef.current = !solDetailsEvenRef.current;
+        const detailsActive = solDetailsEvenRef.current
+          ? '#prod-details-even'
+          : '#prod-details-odd';
+        const detailsInactive = solDetailsEvenRef.current
+          ? '#prod-details-odd'
+          : '#prod-details-even';
+
+        const activeIdx = order[0];
+        const activeItem = activeProducts[activeIdx];
+        updateDetailsBox(detailsActive, activeItem);
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const solOffsetTop = height - 430;
+        const solOffsetLeft = Math.max(20, width - 830);
+
+        // Staggered text reveal for active box
+        gsap.set(detailsActive, { zIndex: 22 });
+        gsap.to(detailsActive, { opacity: 1, delay: 0.3, ease: solEase });
+        gsap.to(`${detailsActive} .sol-text`, {
+          y: 0,
+          delay: 0.1,
+          duration: 0.6,
+          ease: solEase,
+        });
+        gsap.to(`${detailsActive} .sol-title-1`, {
+          y: 0,
+          delay: 0.15,
+          duration: 0.6,
+          ease: solEase,
+        });
+        gsap.to(`${detailsActive} .sol-title-2`, {
+          y: 0,
+          delay: 0.15,
+          duration: 0.6,
+          ease: solEase,
+        });
+        gsap.to(`${detailsActive} .sol-desc`, {
+          y: 0,
+          delay: 0.25,
+          duration: 0.4,
+          ease: solEase,
+        });
+        gsap.to(`${detailsActive} .sol-cta`, {
+          y: 0,
+          delay: 0.3,
+          duration: 0.4,
+          ease: solEase,
+        });
+
+        // Hide inactive box
+        gsap.set(detailsInactive, { zIndex: 12 });
+
+        const [active, ...rest] = order;
+        const prv = rest[rest.length - 1];
+
+        gsap.set(`#prod-card-${prv}`, { zIndex: 10 });
+        gsap.set(`#prod-card-${active}`, { zIndex: 20 });
+        gsap.to(`#prod-card-${prv}`, { scale: 1.4, ease: solEase });
+
+        gsap.to(`#prod-card-content-${active}`, {
+          y: solOffsetTop + solCardHeight - 10,
+          opacity: 0,
+          duration: 0.3,
+          ease: solEase,
+        });
+        gsap.to(`#prod-slide-item-${active}`, { x: 0, ease: solEase });
+        gsap.to(`#prod-slide-item-${prv}`, { x: -solNumberSize, ease: solEase });
+        gsap.to('.prod-progress-fg', {
+          width: 320 * (1 / order.length) * (active + 1),
+          ease: solEase,
+        });
+
+        // Expand active card to full viewport
+        gsap.to(`#prod-card-${active}`, {
+          x: 0,
+          y: 0,
+          ease: solEase,
+          width: width,
+          height: height,
+          borderRadius: 0,
+          onComplete: () => {
+            const xNew =
+              solOffsetLeft + (rest.length - 1) * (solCardWidth + solGap);
+            gsap.set(`#prod-card-${prv}`, {
+              x: xNew,
+              y: solOffsetTop,
+              width: solCardWidth,
+              height: solCardHeight,
+              zIndex: 30,
+              borderRadius: 10,
+              scale: 1,
+            });
+            gsap.set(`#prod-card-content-${prv}`, {
+              x: xNew,
+              y: solOffsetTop + solCardHeight - 100,
+              opacity: 1,
+              zIndex: 40,
+            });
+            gsap.set(`#prod-slide-item-${prv}`, {
+              x: rest.length * solNumberSize,
+            });
+
+            // Reset inactive details box coordinates
+            gsap.set(detailsInactive, { opacity: 0 });
+            gsap.set(`${detailsInactive} .sol-text`, { y: 100 });
+            gsap.set(`${detailsInactive} .sol-title-1`, { y: 100 });
+            gsap.set(`${detailsInactive} .sol-title-2`, { y: 100 });
+            gsap.set(`${detailsInactive} .sol-desc`, { y: 50 });
+            gsap.set(`${detailsInactive} .sol-cta`, { y: 60 });
+
+            isAnimatingRef.current = false;
+            resolve();
+          },
+        });
+
+        // Slide remaining deck cards forward
+        rest.forEach((i, index) => {
+          if (i !== prv) {
+            const xNew = solOffsetLeft + index * (solCardWidth + solGap);
+            gsap.set(`#prod-card-${i}`, { zIndex: 30 });
+            gsap.to(`#prod-card-${i}`, {
+              x: xNew,
+              y: solOffsetTop,
+              width: solCardWidth,
+              height: solCardHeight,
+              ease: solEase,
+              delay: 0.08 * (index + 1),
+            });
+            gsap.to(`#prod-card-content-${i}`, {
+              x: xNew,
+              y: solOffsetTop + solCardHeight - 100,
+              opacity: 1,
+              zIndex: 40,
+              ease: solEase,
+              delay: 0.08 * (index + 1),
+            });
+            gsap.to(`#prod-slide-item-${i}`, {
+              x: (index + 1) * solNumberSize,
+              ease: solEase,
+            });
+          }
+        });
+      });
+    },
+    [activeProducts, updateDetailsBox]
+  );
+
+  const triggerNext = useCallback(() => {
+    if (isAnimatingRef.current || isModalOpenRef.current) return;
+    solStep('next');
+  }, [solStep]);
+
+  const triggerPrev = useCallback(() => {
+    if (isAnimatingRef.current || isModalOpenRef.current) return;
+    solStep('prev');
   }, [solStep]);
 
   // Initialize GSAP positions on mount
@@ -413,43 +423,77 @@ export default function ProductsCarousel({
     });
     gsap.to(detailsActive, { opacity: 1, y: 0, ease: solEase, delay: startDelay });
 
-    // Autoplay Loop
-    let isMounted = true;
-    const runAutoplay = async () => {
-      while (isMounted) {
-        await new Promise((r) => {
-          loopTweenRef.current = gsap.to('.prod-indicator', {
-            x: 0,
-            duration: 4.5,
-            ease: 'none',
-            onComplete: r,
-          });
+    // Autoplay Timer (Pauses if hovered or modal open)
+    const interval = setInterval(() => {
+      if (
+        !isModalOpenRef.current &&
+        !isHoveredRef.current &&
+        !isAnimatingRef.current
+      ) {
+        gsap.to('.prod-indicator', {
+          x: 0,
+          duration: 2.0,
+          ease: 'none',
+          onComplete: () => {
+            gsap.to('.prod-indicator', {
+              x: window.innerWidth,
+              duration: 0.6,
+              ease: 'power2.in',
+              onComplete: () => {
+                gsap.set('.prod-indicator', { x: -window.innerWidth });
+                if (
+                  !isModalOpenRef.current &&
+                  !isHoveredRef.current &&
+                  !isAnimatingRef.current
+                ) {
+                  triggerNext();
+                }
+              },
+            });
+          },
         });
-        if (!isMounted) break;
-        await new Promise((r) => {
-          gsap.to('.prod-indicator', {
-            x: window.innerWidth,
-            duration: 0.6,
-            ease: 'power2.in',
-            onComplete: r,
-          });
-        });
-        gsap.set('.prod-indicator', { x: -window.innerWidth });
-        if (!isMounted) break;
-        triggerStep();
+      }
+    }, 6500);
+
+    return () => clearInterval(interval);
+  }, [activeProducts, initialProductSlug, triggerNext, updateDetailsBox]);
+
+  // Debounced Wheel Navigation
+  useEffect(() => {
+    let lastWheel = 0;
+    const handleWheel = (e: WheelEvent) => {
+      if (isModalOpenRef.current) return; // Allow natural scrolling inside modal
+      const now = Date.now();
+      if (now - lastWheel < 700) return;
+      if (Math.abs(e.deltaY) > 35) {
+        lastWheel = now;
+        if (e.deltaY > 0) {
+          triggerNext();
+        } else {
+          triggerPrev();
+        }
       }
     };
 
-    autoplayTimerRef.current = setTimeout(() => {
-      runAutoplay();
-    }, 1200);
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [triggerNext, triggerPrev]);
 
-    return () => {
-      isMounted = false;
-      if (autoplayTimerRef.current) clearTimeout(autoplayTimerRef.current);
-      if (loopTweenRef.current) loopTweenRef.current.kill();
-    };
-  }, [activeProducts, initialProductSlug, triggerStep, updateDetailsBox]);
+  // Touch Swipe Navigation
+  const touchStartXRef = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (isModalOpenRef.current) return;
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (isModalOpenRef.current || touchStartXRef.current === null) return;
+    const diff = touchStartXRef.current - e.changedTouches[0].clientX;
+    touchStartXRef.current = null;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) triggerNext();
+      else triggerPrev();
+    }
+  };
 
   const handleCardClick = (clickedIdx: number) => {
     const currentActiveIdx = solOrderRef.current[0];
@@ -457,8 +501,8 @@ export default function ProductsCarousel({
       // Clicked on active product -> open modal
       setSelectedProduct(activeProducts[clickedIdx]);
     } else {
-      // Clicked on a queued card -> step forward to it
-      triggerStep();
+      // Advance forward
+      triggerNext();
     }
   };
 
@@ -477,6 +521,14 @@ export default function ProductsCarousel({
         overflow: 'hidden',
         background: '#0b0e0b',
       }}
+      onMouseEnter={() => {
+        isHoveredRef.current = true;
+      }}
+      onMouseLeave={() => {
+        isHoveredRef.current = false;
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <section
         id="solutions"
@@ -542,7 +594,12 @@ export default function ProductsCarousel({
           <div className="sol-desc" />
           <div
             className="sol-specs-list"
-            style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: '0.8rem 0 1.2rem' }}
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.5rem',
+              margin: '0.8rem 0 1.2rem',
+            }}
           />
           <div className="sol-cta">
             <button
@@ -568,7 +625,12 @@ export default function ProductsCarousel({
           <div className="sol-desc" />
           <div
             className="sol-specs-list"
-            style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: '0.8rem 0 1.2rem' }}
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.5rem',
+              margin: '0.8rem 0 1.2rem',
+            }}
           />
           <div className="sol-cta">
             <button
@@ -584,9 +646,11 @@ export default function ProductsCarousel({
         {/* Carousel Pagination & Arrows */}
         <div className="sol-pagination" id="prod-pagination">
           <div
-            className="sol-arrow sol-arrow-left"
-            onClick={triggerStep}
-            aria-label="Next Slide"
+            className="sol-arrow sol-arrow-left cursor-pointer"
+            onClick={triggerPrev}
+            aria-label="Previous Slide"
+            role="button"
+            tabIndex={0}
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -597,9 +661,11 @@ export default function ProductsCarousel({
             </svg>
           </div>
           <div
-            className="sol-arrow sol-arrow-right"
-            onClick={triggerStep}
+            className="sol-arrow sol-arrow-right cursor-pointer"
+            onClick={triggerNext}
             aria-label="Next Slide"
+            role="button"
+            tabIndex={0}
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
