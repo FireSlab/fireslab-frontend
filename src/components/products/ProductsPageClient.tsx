@@ -72,8 +72,8 @@ export default function ProductsPageClient({
   }, [products, activeCategory, activeApp]);
 
   return (
-    <div className="products-page-container">
-      <div className="container" style={{ paddingTop: '2.5rem' }}>
+    <div className="products-page-container" style={{ paddingTop: '130px', paddingBottom: '5rem', minHeight: '100vh' }}>
+      <div className="container">
         <div className="section-header">
           <span className="section-tag">Products Showcase</span>
           <h1>Industrial Heating &amp; Storage Solutions</h1>
