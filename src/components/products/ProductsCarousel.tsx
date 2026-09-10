@@ -43,6 +43,24 @@ const FALLBACK_PRODUCTS: ProductItem[] = [
       'High-capacity modular water storage solutions for commercial, industrial & infrastructure projects.',
     card_image_url: '/panel-tank.png',
   },
+  {
+    id: 'heat-exchangers',
+    slug: 'heat-exchangers',
+    card_badge: 'Thermal Transfer',
+    card_title: 'Heat Exchangers',
+    card_description:
+      'Spiral, Shell & Tube, and Corrugated heat exchangers for industrial process and HVAC applications.',
+    card_image_url: '/tech2.jpg',
+  },
+  {
+    id: 'heating-elements',
+    slug: 'heating-elements',
+    card_badge: 'Custom Wattage',
+    card_title: 'Heating Elements',
+    card_description:
+      'Industrial-grade custom wattage heating elements for tanks, boilers, and process equipment.',
+    card_image_url: '/tech3.jpg',
+  },
 ];
 
 interface ProductsCarouselProps {
@@ -423,6 +441,19 @@ export default function ProductsCarousel({
     });
     gsap.to(detailsActive, { opacity: 1, y: 0, ease: solEase, delay: startDelay });
 
+    // Auto-open modal if a specific product slug was requested (from navbar dropdown click)
+    let autoOpenTimer: ReturnType<typeof setTimeout> | null = null;
+    if (initialProductSlug) {
+      const matchIdx = activeProducts.findIndex(
+        (p) => p.slug === initialProductSlug || p.id === initialProductSlug
+      );
+      if (matchIdx >= 0) {
+        autoOpenTimer = setTimeout(() => {
+          setSelectedProduct(activeProducts[matchIdx]);
+        }, 850); // wait for entrance animation to partially play
+      }
+    }
+
     // Autoplay Timer (Pauses if hovered or modal open)
     const interval = setInterval(() => {
       if (
@@ -455,38 +486,36 @@ export default function ProductsCarousel({
       }
     }, 6500);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (autoOpenTimer) clearTimeout(autoOpenTimer);
+    };
   }, [activeProducts, initialProductSlug, triggerNext, updateDetailsBox]);
 
-  // Debounced Wheel Navigation
-  useEffect(() => {
-    let lastWheel = 0;
-    const handleWheel = (e: WheelEvent) => {
-      if (isModalOpenRef.current) return; // Allow natural scrolling inside modal
-      const now = Date.now();
-      if (now - lastWheel < 700) return;
-      if (Math.abs(e.deltaY) > 35) {
-        lastWheel = now;
-        if (e.deltaY > 0) {
-          triggerNext();
-        } else {
-          triggerPrev();
-        }
+  // Debounced Wheel Navigation (Container only)
+  const lastWheelRef = useRef(0);
+  const handleWheel = (e: React.WheelEvent) => {
+    if (selectedProduct || isAnimatingRef.current) return;
+    const now = Date.now();
+    if (now - lastWheelRef.current < 700) return;
+    if (Math.abs(e.deltaY) > 30) {
+      lastWheelRef.current = now;
+      if (e.deltaY > 0) {
+        triggerNext();
+      } else {
+        triggerPrev();
       }
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, [triggerNext, triggerPrev]);
+    }
+  };
 
   // Touch Swipe Navigation
   const touchStartXRef = useRef<number | null>(null);
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (isModalOpenRef.current) return;
+    if (selectedProduct) return;
     touchStartXRef.current = e.touches[0].clientX;
   };
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (isModalOpenRef.current || touchStartXRef.current === null) return;
+    if (selectedProduct || touchStartXRef.current === null) return;
     const diff = touchStartXRef.current - e.changedTouches[0].clientX;
     touchStartXRef.current = null;
     if (Math.abs(diff) > 40) {
@@ -521,6 +550,7 @@ export default function ProductsCarousel({
         overflow: 'hidden',
         background: '#0b0e0b',
       }}
+      onWheel={handleWheel}
       onMouseEnter={() => {
         isHoveredRef.current = true;
       }}

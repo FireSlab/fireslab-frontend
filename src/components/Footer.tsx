@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Phone, Mail, MapPin, Linkedin, Twitter, Youtube } from 'lucide-react';
+import { Phone, Mail, MapPin, Linkedin, Facebook, Instagram } from 'lucide-react';
 import { fetchSiteSettings } from '@/lib/api';
 
 interface SiteSettings {
@@ -22,10 +22,12 @@ export default function Footer() {
     company_name: 'FireSlab Industries',
     phone: '+91 7310018656',
     email: 'info@fireslab.com',
-    address: 'Plot No. 42, Industrial Area, Phase II, New Delhi, India',
+    address: 'Sector 15, GIDA, Uttar Pradesh, India',
+    facebook_url: 'https://www.facebook.com/fireslabindia',
+    instagram_url: 'https://www.instagram.com/fireslab',
     linkedin_url: 'https://www.linkedin.com/company/fireslab',
     about_summary:
-      'Engineered for extreme performance. Industrial heating and water storage solutions built to last decades.',
+      'Leading manufacturer of pressurized hot water storage tanks, modular panel tanks, and advanced thermal engineering solutions across India and international markets.',
   });
 
   useEffect(() => {
@@ -55,45 +57,48 @@ export default function Footer() {
           </Link>
           <p>
             {settings.about_summary ||
-              'Engineered for extreme performance. Industrial heating and water storage solutions built to last decades.'}
+              'Leading manufacturer of pressurized hot water storage tanks, modular panel tanks, and advanced thermal engineering solutions across India and international markets.'}
           </p>
           <div className="social-links">
-            <a
-              href={settings.linkedin_url || 'https://www.linkedin.com/company/fireslab'}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-            >
-              <Linkedin size={18} />
-            </a>
-            <a
-              href="https://twitter.com/fireslab"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Twitter"
-            >
-              <Twitter size={18} />
-            </a>
-            <a
-              href="https://www.youtube.com/@fireslab"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="YouTube"
-            >
-              <Youtube size={18} />
-            </a>
+            {settings.instagram_url && (
+              <a
+                href={settings.instagram_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+              >
+                <Instagram size={18} />
+              </a>
+            )}
+            {settings.facebook_url && (
+              <a
+                href={settings.facebook_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+              >
+                <Facebook size={18} />
+              </a>
+            )}
+            {settings.linkedin_url && (
+              <a
+                href={settings.linkedin_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+              >
+                <Linkedin size={18} />
+              </a>
+            )}
           </div>
         </div>
 
-        {/* Navigation Links */}
+        {/* Quick Links */}
         <div className="footer-links">
-          <h4>Navigation</h4>
+          <h4>Quick Links</h4>
           <ul>
             <li>
               <a href="/#about">About FireSlab</a>
-            </li>
-            <li>
-              <Link href="/solutions">Core Solutions</Link>
             </li>
             <li>
               <Link href="/products">Products</Link>
@@ -102,7 +107,7 @@ export default function Footer() {
               <a href="/#technology">Technology</a>
             </li>
             <li>
-              <a href="/#capacity">Specifications</a>
+              <a href="/#applications">Applications</a>
             </li>
             <li>
               <Link href="/projects">Projects</Link>
@@ -116,7 +121,7 @@ export default function Footer() {
           <ul>
             <li>
               <MapPin size={16} />
-              <span>{settings.address || 'Plot No. 42, Industrial Area, Phase II, New Delhi, India'}</span>
+              <span>{settings.address || 'Sector 15, GIDA, Uttar Pradesh, India'}</span>
             </li>
             <li>
               <Phone size={16} />
@@ -132,14 +137,8 @@ export default function Footer() {
 
       {/* Footer Bottom */}
       <div className="footer-bottom">
-        <div className="container footer-bottom-inner">
+        <div className="container footer-bottom-inner" style={{ justifyContent: 'center', textAlign: 'center' }}>
           <p>&copy; {new Date().getFullYear()} FireSlab Industries. All rights reserved. Designed for industrial excellence.</p>
-          <p className="developed-by">
-            Developed by{' '}
-            <a href="https://brandnest.in" target="_blank" rel="noopener noreferrer">
-              Brandnest
-            </a>
-          </p>
         </div>
       </div>
     </footer>

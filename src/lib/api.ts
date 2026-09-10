@@ -28,7 +28,7 @@ export async function fetchApplications() {
 
 export async function fetchSiteSettings() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/settings`, { next: { revalidate: 60 } });
+    const res = await fetch(`${API_BASE_URL}/api/settings`, { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to fetch site settings');
     const json = await res.json();
     return json.data || null;

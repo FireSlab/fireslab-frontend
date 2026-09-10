@@ -1,7 +1,6 @@
 import HeroSlider from '@/components/home/HeroSlider';
 import StatsBar from '@/components/home/StatsBar';
 import AboutSection from '@/components/home/AboutSection';
-import SolutionsParallaxPreview from '@/components/home/SolutionsParallaxPreview';
 import ApplicationsGrid from '@/components/home/ApplicationsGrid';
 import TechnologySection from '@/components/home/TechnologySection';
 import ExchangerComparisonTabs from '@/components/home/ExchangerComparisonTabs';
@@ -37,11 +36,6 @@ export default async function HomePage() {
 
       {/* 3. About FireSlab Section (Consumes GET /api/settings) */}
       <AboutSection />
-
-      <div className="section-spacer" />
-
-      {/* Solutions Parallax Tilt Cards */}
-      <SolutionsParallaxPreview />
 
       <div className="section-spacer" />
 

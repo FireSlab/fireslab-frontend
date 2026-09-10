@@ -52,6 +52,8 @@ export default function ProjectDetailModal({ project, onClose }: ProjectDetailMo
       <div
         className="relative w-full max-w-3xl max-h-[90vh] bg-[#111411] border border-white/10 rounded-xl overflow-y-auto shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+        style={{ overscrollBehavior: 'contain' }}
       >
         {/* Close Button */}
         <button

@@ -8,7 +8,8 @@ export const metadata: Metadata = {
     'Explore real-world industrial installations, commercial HVAC systems, and water storage case studies engineered by FireSlab.',
 };
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function ProjectsPage() {
   const [projects, siteSettings] = await Promise.all([
@@ -16,14 +17,14 @@ export default async function ProjectsPage() {
     fetchSiteSettings(),
   ]);
 
-  const projectsComingSoon = siteSettings?.projects_coming_soon !== undefined
+  const isComingSoon = siteSettings?.projects_coming_soon !== undefined
     ? Boolean(siteSettings.projects_coming_soon)
-    : false;
+    : true;
 
   return (
     <ProjectsPageClient
       initialProjects={projects}
-      isComingSoon={projectsComingSoon}
+      isComingSoon={isComingSoon}
     />
   );
 }

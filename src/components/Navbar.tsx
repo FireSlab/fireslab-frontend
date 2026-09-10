@@ -153,7 +153,14 @@ export default function Navbar() {
   };
 
   return (
-    <header id="navbar" className={scrolled ? 'scrolled' : ''}>
+    <header
+      id="navbar"
+      className={scrolled ? 'scrolled' : ''}
+      style={{
+        backgroundColor: '#0d0f0d',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+      }}
+    >
       <nav
         className="container"
         style={{
@@ -161,16 +168,19 @@ export default function Navbar() {
           alignItems: 'center',
           justifyContent: 'space-between',
           width: '100%',
+          maxWidth: '1440px',
+          margin: '0 auto',
+          padding: '0 2rem',
         }}
       >
         {/* Brand Logo - Real FireSlab Logo */}
-        <Link href="/" className="flex items-center group py-0.5">
+        <Link href="/" className="flex items-center group py-0.5 shrink-0">
           <Image
             src="/logo-fireslab.png"
             alt="FireSlab"
             width={180}
             height={48}
-            className="h-[40px] sm:h-[46px] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+            className="h-[38px] sm:h-[44px] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             priority
           />
         </Link>
@@ -192,7 +202,7 @@ export default function Navbar() {
             </Link>
             <div className="nav-dropdown">
               <div className="dropdown-grid">
-                {navProducts.map((prod) => {
+                {APPROVED_FALLBACK_PRODUCTS.map((prod) => {
                   const IconComp = getIconComponent(prod.icon_name, Droplets);
                   return (
                     <Link
@@ -212,27 +222,29 @@ export default function Navbar() {
                   );
                 })}
 
+                {/* 4th Row: Left column gets the horizontal divider line */}
                 <div
+                  className="hidden md:block"
                   style={{
                     height: '1px',
-                    background: 'rgba(255,255,255,0.08)',
-                    margin: '0.4rem 0.5rem',
-                    gridColumn: 'span 2',
+                    background: 'rgba(255,255,255,0.1)',
+                    margin: 'auto 0.75rem',
                   }}
                 />
+
+                {/* 4th Row: Right column gets the View All Products button */}
                 <Link
                   href="/products"
                   className="dropdown-item"
                   onClick={() => setMobileMenuOpen(false)}
                   style={{
-                    gridColumn: 'span 2',
                     justifyContent: 'center',
                     textAlign: 'center',
                     background: 'rgba(45,106,53,0.18)',
-                    border: '1px solid rgba(45,106,53,0.3)',
+                    border: '1px solid rgba(45,106,53,0.35)',
                     borderRadius: '4px',
-                    margin: '0.2rem 0.5rem 0.4rem',
-                    padding: '0.7rem',
+                    margin: '0.25rem 0.25rem',
+                    padding: '0.75rem 1rem',
                   }}
                 >
                   <strong
@@ -243,6 +255,7 @@ export default function Navbar() {
                       textTransform: 'uppercase',
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                       gap: '6px',
                     }}
                   >
@@ -285,11 +298,6 @@ export default function Navbar() {
           </li>
 
           <li>
-            <Link href="/solutions" onClick={() => setMobileMenuOpen(false)}>
-              Solutions
-            </Link>
-          </li>
-          <li>
             <a href="/#technology" onClick={() => setMobileMenuOpen(false)}>
               Technology
             </a>
@@ -328,6 +336,14 @@ export default function Navbar() {
           <span />
         </button>
       </nav>
+
+      {/* Mobile Menu Backdrop */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[1000] lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
     </header>
   );
 }

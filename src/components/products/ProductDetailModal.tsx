@@ -118,6 +118,13 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
       <div
         className="product-modal-container"
         onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+        style={{
+          maxHeight: '88vh',
+          overflowY: 'auto',
+          overscrollBehavior: 'contain',
+          pointerEvents: 'auto',
+        }}
       >
         {/* Close Button */}
         <button

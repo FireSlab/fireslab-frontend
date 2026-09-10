@@ -27,18 +27,14 @@ export default function ProjectsFilterBar({
   onFilterChange,
 }: ProjectsFilterBarProps) {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 my-8">
+    <div className="projects-filter">
       {DEFAULT_FILTERS.map((tab) => {
         const isActive = activeFilter.toLowerCase() === tab.id.toLowerCase();
         return (
           <button
             key={tab.id}
             onClick={() => onFilterChange(tab.id)}
-            className={`px-5 py-2 text-xs font-mono tracking-widest uppercase transition-all duration-200 border rounded ${
-              isActive
-                ? 'bg-[#2d6a35] border-[#2d6a35] text-white shadow-lg shadow-[#2d6a35]/20 font-semibold'
-                : 'bg-transparent border-white/20 text-white/70 hover:text-white hover:border-white/40 hover:bg-white/5'
-            }`}
+            className={`filter-btn ${isActive ? 'active' : ''}`}
           >
             {tab.label}
           </button>
