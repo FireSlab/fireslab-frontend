@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { fetchProjects } from '@/lib/api';
+import { fetchProjects, fetchSiteSettings } from '@/lib/api';
 import ProjectsPageClient from '@/components/projects/ProjectsPageClient';
 
 export const metadata: Metadata = {
@@ -11,7 +11,19 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function ProjectsPage() {
-  const projects = await fetchProjects();
+  const [projects, siteSettings] = await Promise.all([
+    fetchProjects(),
+    fetchSiteSettings(),
+  ]);
 
-  return <ProjectsPageClient initialProjects={projects} />;
+  const projectsComingSoon = siteSettings?.projects_coming_soon !== undefined
+    ? Boolean(siteSettings.projects_coming_soon)
+    : false;
+
+  return (
+    <ProjectsPageClient
+      initialProjects={projects}
+      isComingSoon={projectsComingSoon}
+    />
+  );
 }

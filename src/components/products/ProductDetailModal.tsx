@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { X, CheckCircle2, ChevronDown, Building2 } from 'lucide-react';
 import { ProductItem } from '@/components/home/ProductsHorizontalScroll';
@@ -14,6 +14,22 @@ interface ProductDetailModalProps {
 
 export default function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!product) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [product, onClose]);
 
   if (!product) return null;
 
@@ -31,11 +47,20 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title-heading"
+      data-lenis-prevent="true"
+      data-lenis-prevent-wheel="true"
+      data-lenis-prevent-touch="true"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="product-modal-container">
+      <div
+        className="product-modal-container"
+        data-lenis-prevent="true"
+        data-lenis-prevent-wheel="true"
+        data-lenis-prevent-touch="true"
+        onWheel={(e) => e.stopPropagation()}
+      >
         <button
           type="button"
           className="modal-close"
@@ -62,12 +87,16 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
           <>
             <h3 className="modal-section-title">Key Features</h3>
             <div className="modal-features-grid">
-              {features.map((f, idx) => (
-                <div key={idx} className="modal-feature-card">
-                  <h4>{f.title}</h4>
-                  <p>{f.desc}</p>
-                </div>
-              ))}
+              {features.map((f: any, idx: number) => {
+                const fTitle = typeof f === 'string' ? f : f?.title || f?.name || '';
+                const fDesc = typeof f === 'object' ? f?.desc || f?.description || '' : '';
+                return (
+                  <div key={idx} className="modal-feature-card">
+                    <h4>{fTitle}</h4>
+                    {fDesc && <p>{fDesc}</p>}
+                  </div>
+                );
+              })}
             </div>
           </>
         )}
@@ -84,10 +113,10 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
                 </tr>
               </thead>
               <tbody>
-                {specs.map((s, idx) => (
+                {specs.map((s: any, idx: number) => (
                   <tr key={idx}>
-                    <td>{s.param}</td>
-                    <td>{s.value}</td>
+                    <td>{s?.param || s?.parameter || s?.label || s?.key || ''}</td>
+                    <td>{s?.value || s?.spec || ''}</td>
                   </tr>
                 ))}
               </tbody>
@@ -100,12 +129,15 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
           <>
             <h3 className="modal-section-title">Applications</h3>
             <ul className="modal-list">
-              {applications.map((app, idx) => (
-                <li key={idx}>
-                  <CheckCircle2 size={16} />
-                  <span>{app}</span>
-                </li>
-              ))}
+              {applications.map((app: any, idx: number) => {
+                const appName = typeof app === 'string' ? app : app?.name || app?.label || String(app);
+                return (
+                  <li key={idx}>
+                    <CheckCircle2 size={16} />
+                    <span>{appName}</span>
+                  </li>
+                );
+              })}
             </ul>
           </>
         )}

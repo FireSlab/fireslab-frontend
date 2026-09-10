@@ -116,28 +116,28 @@ export default function Navbar() {
   const hasSolidNav = !isHome || scrolled;
 
   return (
-    <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-        hasSolidNav
-          ? 'bg-[#0d0f0d]/95 backdrop-blur-md py-4 border-b border-white/5 shadow-2xl'
-          : 'bg-transparent py-6'
-      }`}
-    >
-      <nav className="max-w-[1400px] mx-auto px-6 lg:px-8 flex items-center justify-between">
-        {/* Brand Logo */}
-        <Link href="/" className="flex items-center group py-0.5">
-          <Image
-            src="/logo-fireslab.png"
-            alt="FireSlab"
-            width={220}
-            height={60}
-            className="h-[48px] sm:h-[54px] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-            priority
-          />
+    <header className="fixed top-0 left-0 w-full z-50 bg-[#0d0f0d] border-b border-white/10 shadow-2xl py-3.5 transition-all">
+      <nav className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between">
+        {/* Brand Logo - Approved Demo Wordmark with Orange Bolt */}
+        <Link href="/" className="flex items-center gap-1.5 group py-1 text-2xl font-bold font-['Barlow_Condensed'] uppercase tracking-wider text-white hover:text-white">
+          <span className="text-2xl sm:text-3xl font-extrabold tracking-wider text-white font-['Barlow_Condensed']">
+            FireSlab
+          </span>
+          <svg
+            className="w-5 h-5 text-[#e07b2a] transition-transform duration-300 group-hover:scale-110"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#e07b2a"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
         </Link>
 
         {/* Desktop Navigation Links */}
-        <ul className="hidden lg:flex items-center gap-8 font-['Barlow_Condensed'] tracking-wider uppercase text-sm font-semibold text-white/80">
+        <ul className="hidden lg:flex items-center gap-8 font-['Barlow_Condensed'] tracking-wider uppercase text-sm font-semibold text-white/85">
           {/* Products Dropdown */}
           <li className="relative group/dropdown">
             <Link

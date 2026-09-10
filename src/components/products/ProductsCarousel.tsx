@@ -320,8 +320,8 @@ export default function ProductsCarousel({ products }: ProductsCarouselProps) {
   }
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 220px)', minHeight: '650px' }}>
-      <section id="solutions" className="solutions-animated" ref={containerRef} style={{ height: '100%', minHeight: '650px', position: 'relative' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
+      <section id="solutions" className="solutions-animated" ref={containerRef} style={{ height: '100vh', width: '100%', position: 'relative' }}>
         <div className="solutions-indicator prod-indicator" />
 
         <div id="solutions-demo">
