@@ -111,6 +111,26 @@ export default function ProductsCarousel({
       if (descEl)
         descEl.textContent =
           item.card_description || item.cardDesc || item.modal_tagline || '';
+
+      const specsBox = box.querySelector('.sol-specs-list');
+      if (specsBox) {
+        const specs = (item.card_specs || (item as any).cardSpecs || []) as any[];
+        if (Array.isArray(specs) && specs.length > 0) {
+          specsBox.innerHTML = specs
+            .map((s) => {
+              const val = s?.value || s?.text || '';
+              const lbl = s?.label || s?.param || '';
+              const display =
+                lbl && val && !val.toLowerCase().includes(lbl.toLowerCase())
+                  ? `${lbl}: ${val}`
+                  : val || lbl;
+              return `<span style="background: rgba(45, 106, 53, 0.2); border: 1px solid rgba(45, 106, 53, 0.4); color: var(--green-light); font-size: 0.78rem; font-family: var(--font-labels); text-transform: uppercase; letter-spacing: 0.05em; padding: 0.2rem 0.65rem; border-radius: 2px;">${display}</span>`;
+            })
+            .join(' ');
+        } else {
+          specsBox.innerHTML = '';
+        }
+      }
     },
     []
   );
@@ -520,6 +540,10 @@ export default function ProductsCarousel({
             <div className="sol-title-2" />
           </div>
           <div className="sol-desc" />
+          <div
+            className="sol-specs-list"
+            style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: '0.8rem 0 1.2rem' }}
+          />
           <div className="sol-cta">
             <button
               type="button"
@@ -542,6 +566,10 @@ export default function ProductsCarousel({
             <div className="sol-title-2" />
           </div>
           <div className="sol-desc" />
+          <div
+            className="sol-specs-list"
+            style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: '0.8rem 0 1.2rem' }}
+          />
           <div className="sol-cta">
             <button
               type="button"

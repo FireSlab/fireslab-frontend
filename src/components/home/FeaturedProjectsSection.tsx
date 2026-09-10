@@ -3,7 +3,7 @@
 import Link from 'next/link';
 
 export interface FeaturedProjectItem {
-  id: string;
+  id?: string;
   title: string;
   slug: string;
   product_used?: string;
@@ -11,8 +11,37 @@ export interface FeaturedProjectItem {
   description?: string;
 }
 
-export default function FeaturedProjectsSection({ projects = [] }: { projects?: FeaturedProjectItem[] }) {
-  if (!projects || projects.length === 0) return null;
+const DEFAULT_FEATURED_PROJECTS: FeaturedProjectItem[] = [
+  {
+    id: 'proj-1',
+    title: 'Grand Hyatt Water System',
+    slug: 'grand-hyatt-water-system',
+    product_used: '12 × 2000L Pressurized Tanks',
+    image_url: '/app1.jpg',
+  },
+  {
+    id: 'proj-2',
+    title: 'Apollo Hospital HVAC',
+    slug: 'apollo-hospital-hvac',
+    product_used: 'Spiral Heat Exchanger Network',
+    image_url: '/app2.jpg',
+  },
+  {
+    id: 'proj-3',
+    title: 'Olympic Pool Heating',
+    slug: 'olympic-pool-heating',
+    product_used: 'Shell & Tube Integration',
+    image_url: '/app3.jpg',
+  },
+];
+
+export default function FeaturedProjectsSection({
+  projects = [],
+}: {
+  projects?: FeaturedProjectItem[];
+}) {
+  const displayProjects =
+    projects && projects.length >= 3 ? projects : DEFAULT_FEATURED_PROJECTS;
 
   return (
     <section id="featured-projects" className="featured-projects" aria-label="Featured Projects">
@@ -23,27 +52,26 @@ export default function FeaturedProjectsSection({ projects = [] }: { projects?: 
         </div>
 
         <div className="projects-mini-grid">
-          {projects.map((proj, idx) => {
+          {displayProjects.map((proj, idx) => {
             const img = proj.image_url || `/app${(idx % 6) + 1}.jpg`;
             const sub = proj.product_used || proj.description || 'Custom Thermal Engineering';
 
             return (
-              <Link
+              <div
                 key={proj.id || proj.slug || idx}
-                href={`/projects#${proj.slug}`}
-                className="mini-project group"
+                className="mini-project"
               >
                 <img src={img} alt={proj.title} loading="lazy" />
                 <div className="mini-project-info">
                   <h4>{proj.title}</h4>
                   <p>{sub}</p>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
 
-        <div className="center-cta" style={{ textAlign: 'center' }}>
+        <div className="center-cta" style={{ textAlign: 'center', marginTop: '2.5rem' }}>
           <Link href="/projects" className="btn btn-outline">
             View All Projects
           </Link>
