@@ -113,7 +113,44 @@ export default function Navbar() {
     return ICON_MAP[name.toLowerCase()] || defaultIcon;
   };
 
-  const hasSolidNav = !isHome || scrolled;
+  const approvedNavProducts = [
+    {
+      name: 'Pressurized Hot Water Tank',
+      slug: 'pressurized-tank',
+      specs: '100L – 10,000+ Litres | MS / SS304 / SS316',
+      icon_name: 'droplets',
+    },
+    {
+      name: 'Non-Pressurized Insulated Tank',
+      slug: 'non-pressurized-tank',
+      specs: '500L – 3000 Litres | PUF Insulated',
+      icon_name: 'thermometer',
+    },
+    {
+      name: 'Glass Lined Hot Water Tank',
+      slug: 'glass-lined-tank',
+      specs: 'Enamel Coated | Up to 7 Bar',
+      icon_name: 'shield-check',
+    },
+    {
+      name: 'Modular Panel Tanks',
+      slug: 'modular-panel-tank',
+      specs: '1,000L – 250,000+ Litres | Site-assembled',
+      icon_name: 'layout-grid',
+    },
+    {
+      name: 'Heat Exchangers',
+      slug: 'heat-exchangers',
+      specs: 'Spiral, Shell & Tube, Corrugated',
+      icon_name: 'wind',
+    },
+    {
+      name: 'Heating Elements',
+      slug: 'heating-elements',
+      specs: 'Custom wattage, industrial grade',
+      icon_name: 'zap',
+    },
+  ];
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-[#0d0f0d] border-b border-white/10 shadow-2xl py-3.5 transition-all">
@@ -150,43 +187,40 @@ export default function Navbar() {
 
             {/* Dropdown Menu */}
             <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 invisible pointer-events-none group-hover/dropdown:opacity-100 group-hover/dropdown:visible group-hover/dropdown:pointer-events-auto transition-all duration-200 ease-out z-50">
-              <div className="w-[620px] bg-[#0d0f0d]/98 backdrop-blur-2xl border border-white/10 rounded-lg p-6 shadow-2xl">
-                <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-                  {categories.map((cat) => {
-                    const IconComp = getIconComponent(cat.icon_name, Droplets);
+              <div className="w-[660px] bg-[#0d0f0d]/98 backdrop-blur-2xl border border-white/10 rounded-lg p-5 shadow-2xl">
+                <div className="grid grid-cols-2 gap-2">
+                  {approvedNavProducts.map((prod) => {
+                    const IconComp = getIconComponent(prod.icon_name, Droplets);
                     return (
                       <Link
-                        key={cat.id}
-                        href={`/products#${cat.slug}`}
-                        className="flex items-start gap-3.5 group/item transition-colors"
+                        key={prod.slug}
+                        href={`/products?product=${prod.slug}`}
+                        className="flex items-center gap-3 p-3 rounded hover:bg-[#2d6a35]/25 transition-colors group/item"
                       >
-                        <span className="w-10 h-10 rounded-md bg-[#1c2b1e] border border-[#2d6a35]/40 text-[#4a9b55] flex items-center justify-center shrink-0 mt-0.5 group-hover/item:bg-[#2d6a35] group-hover/item:text-white group-hover/item:border-[#4a9b55] transition-all shadow-sm">
-                          <IconComp className="w-5 h-5" />
+                        <span className="w-9 h-9 bg-[#2d6a35]/30 text-[#4a9b55] flex items-center justify-center shrink-0">
+                          <IconComp className="w-4 h-4" />
                         </span>
                         <span className="flex-1 min-w-0">
-                          <strong className="block font-['Barlow_Condensed'] text-white text-sm font-bold uppercase tracking-wider group-hover/item:text-[#4a9b55] transition-colors leading-tight">
-                            {cat.name}
+                          <strong className="block font-['Barlow_Condensed'] text-white text-[13px] font-bold uppercase tracking-wider leading-tight">
+                            {prod.name}
                           </strong>
-                          {cat.description && (
-                            <small className="block text-xs text-[#8a9b8a] normal-case leading-snug mt-1 font-normal font-sans">
-                              {cat.description}
-                            </small>
-                          )}
+                          <small className="block text-[11px] text-[#8a9b8a] normal-case leading-snug mt-0.5 font-normal">
+                            {prod.specs}
+                          </small>
                         </span>
                       </Link>
                     );
                   })}
                 </div>
 
-                <div className="border-t border-white/10 pt-4 mt-6">
-                  <Link
-                    href="/products"
-                    className="flex items-center justify-center gap-2 text-[#4a9b55] hover:text-white text-xs font-bold tracking-widest uppercase transition-colors"
-                  >
-                    <span>View All Products</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </div>
+                <div className="h-[1px] bg-white/10 my-3 mx-2"></div>
+                <Link
+                  href="/products"
+                  className="flex items-center justify-center gap-2 p-3 bg-[#2d6a35]/15 hover:bg-[#2d6a35]/30 border border-[#2d6a35]/30 rounded text-[#4a9b55] hover:text-white text-xs font-bold tracking-widest uppercase transition-colors"
+                >
+                  <span>View All Products</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
             </div>
           </li>
@@ -297,21 +331,34 @@ export default function Navbar() {
                 />
               </button>
               {mobileProductsOpen && (
-                <div className="pl-4 py-3 space-y-3 bg-white/5 rounded-md mt-2">
-                  {categories.map((c) => (
-                    <Link
-                      key={c.id}
-                      href={`/products#${c.slug}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block text-sm normal-case text-white/70 hover:text-[#4a9b55]"
-                    >
-                      {c.name}
-                    </Link>
-                  ))}
+                <div className="pl-4 py-3 space-y-2.5 bg-white/5 rounded-md mt-2">
+                  {approvedNavProducts.map((prod) => {
+                    const IconComp = getIconComponent(prod.icon_name, Droplets);
+                    return (
+                      <Link
+                        key={prod.slug}
+                        href={`/products?product=${prod.slug}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 py-1.5 text-white/80 hover:text-[#4a9b55] transition-colors"
+                      >
+                        <span className="w-7 h-7 bg-[#2d6a35]/30 text-[#4a9b55] flex items-center justify-center shrink-0 rounded">
+                          <IconComp className="w-3.5 h-3.5" />
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <strong className="block font-['Barlow_Condensed'] text-white text-[13px] font-bold uppercase tracking-wider leading-tight">
+                            {prod.name}
+                          </strong>
+                          <small className="block text-[11px] text-[#8a9b8a] normal-case leading-snug">
+                            {prod.specs}
+                          </small>
+                        </span>
+                      </Link>
+                    );
+                  })}
                   <Link
                     href="/products"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block text-xs text-[#4a9b55] font-bold pt-1"
+                    className="block text-xs text-[#4a9b55] font-bold pt-2 border-t border-white/10"
                   >
                     View All Products &rarr;
                   </Link>
