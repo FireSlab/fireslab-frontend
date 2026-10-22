@@ -19,6 +19,8 @@ export async function generateStaticParams() {
   }));
 }
 
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://fireslab.com').replace(/\/$/, '');
+
 export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
   const product = await fetchProductBySlug(slug);
@@ -30,19 +32,40 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
     };
   }
 
-  const title = product.modal_title || product.card_title || 'Industrial Heating & Storage Solution';
-  const description =
+  const baseTitle = product.modal_title || product.card_title || 'Industrial Heating & Storage Solution';
+  const metaTitle = product.seo_title || `${baseTitle} | FireSlab Industries`;
+
+  const baseDesc =
     product.modal_description ||
     product.card_description ||
     'Custom engineered thermal heating and water storage equipment by FireSlab Industries.';
+  const metaDesc = (product.seo_description || baseDesc).slice(0, 160);
+
+  const imageUrl = product.card_image_url
+    ? (product.card_image_url.startsWith('http') ? product.card_image_url : `${siteUrl}${product.card_image_url}`)
+    : `${siteUrl}/tank-1.png`;
 
   return {
-    title: `${title} | FireSlab Industries`,
-    description: description.slice(0, 160),
+    title: metaTitle,
+    description: metaDesc,
+    alternates: {
+      canonical: `/products/${slug}`,
+    },
+    keywords: product.seo_keywords
+      ? product.seo_keywords.split(',').map((k: string) => k.trim())
+      : undefined,
     openGraph: {
-      title: `${title} | FireSlab Industries`,
-      description: description.slice(0, 160),
-      images: product.card_image_url ? [{ url: product.card_image_url }] : [],
+      title: metaTitle,
+      description: metaDesc,
+      url: `${siteUrl}/products/${slug}`,
+      siteName: 'FireSlab Industries',
+      images: [{ url: imageUrl, alt: baseTitle }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: metaTitle,
+      description: metaDesc,
+      images: [imageUrl],
     },
   };
 }
@@ -59,9 +82,73 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const tagline = product.modal_tagline || product.card_badge;
   const description = product.modal_description || product.card_description;
   const image = product.card_image_url || '/tank-1.png';
+  const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`;
+
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Product',
+        '@id': `${siteUrl}/products/${slug}/#product`,
+        name: title,
+        image: [fullImageUrl],
+        description: description,
+        sku: product.slug,
+        mpn: product.slug,
+        brand: {
+          '@type': 'Brand',
+          name: 'FireSlab',
+        },
+        manufacturer: {
+          '@id': `${siteUrl}/#organization`,
+        },
+        category: product.categories?.name || 'Industrial Heating & Storage Tanks',
+        offers: {
+          '@type': 'Offer',
+          url: `${siteUrl}/products/${slug}`,
+          priceCurrency: 'INR',
+          price: '0.00',
+          priceValidUntil: '2028-12-31',
+          availability: 'https://schema.org/InStock',
+          itemCondition: 'https://schema.org/NewCondition',
+          seller: {
+            '@id': `${siteUrl}/#organization`,
+          },
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${siteUrl}/products/${slug}/#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: `${siteUrl}/`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Products',
+            item: `${siteUrl}/products`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: title,
+            item: `${siteUrl}/products/${slug}`,
+          },
+        ],
+      },
+    ],
+  };
 
   return (
     <div className="min-h-screen bg-[#0d0f0d] text-white pt-36 pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         {/* Breadcrumb / Back Link */}
         <div className="mb-8">

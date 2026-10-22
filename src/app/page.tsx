@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import HeroSlider from '@/components/home/HeroSlider';
 import StatsBar from '@/components/home/StatsBar';
 import AboutSection from '@/components/home/AboutSection';
@@ -15,6 +16,15 @@ import {
   fetchFeaturedProjects,
   fetchCertifications,
 } from '@/lib/api';
+
+export const metadata: Metadata = {
+  title: 'FireSlab | Industrial Heating Systems, Hot Water Tanks & Heat Exchangers',
+  description:
+    'FireSlab Industries manufactures high-performance pressurized hot water tanks, spiral heat exchangers, and modular stainless steel storage solutions.',
+  alternates: {
+    canonical: '/',
+  },
+};
 
 export default async function HomePage() {
   const [applications, products, projects, certifications] = await Promise.all([
